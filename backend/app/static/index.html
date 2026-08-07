@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Coach</title>
+  <link rel="stylesheet" href="/app/styles.css">
+</head>
+<body>
+  <header><div class="brand">AI Coach <span>IELTS · University Pathway</span></div><button id="logout" hidden>Log out</button></header>
+  <main>
+    <section id="auth-card" class="card auth">
+      <h1>Build your study pathway</h1><p>Practice IELTS, track your scores, and find suitable programmes.</p>
+      <div class="tabs"><button class="active" data-tab="login">Log in</button><button data-tab="register">Create account</button></div>
+      <form id="auth-form">
+        <input id="name" placeholder="Full name" autocomplete="name" hidden>
+        <input id="email" type="email" placeholder="Email" autocomplete="email" required>
+        <input id="password" type="password" placeholder="Password (8+ characters)" autocomplete="current-password" required>
+        <button>Continue</button><p id="auth-error" class="error"></p>
+      </form>
+    </section>
+    <section id="dashboard" hidden>
+      <div class="hero"><div><p class="eyebrow">STUDENT DASHBOARD</p><h1 id="welcome">Welcome</h1><p id="summary">Set your academic profile to start.</p></div><button id="refresh">Refresh data</button></div>
+      <div class="grid metrics"><article class="card"><span>Overall IELTS</span><strong id="overall">—</strong><small>Latest recorded score</small></article><article class="card"><span>Focus area</span><strong id="focus">—</strong><small>Improve this module next</small></article><article class="card"><span>Strong matches</span><strong id="matches">—</strong><small>From demonstration data</small></article></div>
+      <div class="grid content-grid">
+        <article class="card"><h2>Record IELTS score</h2><form id="score-form" class="compact"><input name="reading" type="number" min="0" max="9" step=".5" placeholder="Reading" required><input name="listening" type="number" min="0" max="9" step=".5" placeholder="Listening" required><input name="writing" type="number" min="0" max="9" step=".5" placeholder="Writing" required><input name="speaking" type="number" min="0" max="9" step=".5" placeholder="Speaking" required><button>Save score</button></form></article>
+        <article class="card"><h2>Academic profile</h2><form id="profile-form" class="compact"><input name="target_country" placeholder="Target country (e.g. UK)"><input name="target_program" placeholder="Field (e.g. Computer Science)"><input name="cgpa" type="number" min="0" max="4" step=".01" placeholder="CGPA / 4.0"><button>Save profile</button></form></article>
+        <article class="card wide"><h2>IELTS lessons</h2><div id="lessons" class="lesson-list"></div></article>
+        <article class="card wide"><h2>University recommendations</h2><div id="recommendations"><p>Save your profile and IELTS result to see matches.</p></div></article>
+      </div>
+    </section>
+  </main>
+  <script src="/app/app.js"></script>
+</body>
+</html>

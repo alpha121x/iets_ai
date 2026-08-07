@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-5-mini"
     FRONTEND_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

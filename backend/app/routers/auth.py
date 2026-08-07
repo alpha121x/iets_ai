@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.dependencies import DBSession
@@ -20,7 +22,7 @@ def register(payload: UserCreate, db: DBSession) -> Token:
 
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = None, db: DBSession = None) -> Token:
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: DBSession) -> Token:
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})

@@ -67,6 +67,11 @@ class WritingOut(BaseModel):
     created_at: datetime
 
 
+class SpeakingCreate(BaseModel):
+    prompt: str = Field(min_length=5)
+    transcript: str = Field(min_length=20)
+
+
 class AttemptCreate(BaseModel):
     module: str = Field(pattern="^(Reading|Listening|Speaking)$")
     correct_answers: int = Field(ge=0)

@@ -1,5 +1,7 @@
 import re
 
+from app.config import settings
+
 
 def round_ielts_band(value: float) -> float:
     """Round to the nearest IELTS half band."""
@@ -30,7 +32,39 @@ def writing_feedback(answer: str, task_type: str) -> tuple[float, str]:
         + "Improve cohesion by using clear paragraphs, topic sentences, and precise examples. "
         + "Review grammar and vocabulary with a qualified IELTS teacher before relying on this score."
     )
-    return score, feedback
+    return score, _ai_feedback(
+        f"Evaluate this IELTS {task_type} answer. Give concise feedback on task response, coherence, vocabulary, and grammar. Do not claim it is an official score.\n\n{answer}",
+        feedback,
+    )
+
+
+def speaking_feedback(transcript: str) -> tuple[float, str]:
+    words = re.findall(r"\b[\w'-]+\b", transcript)
+    score = 5.0 + (0.5 if len(words) >= 80 else 0) + (0.5 if len(set(word.lower() for word in words)) / max(len(words), 1) > 0.55 else 0)
+    fallback = (
+        f"Practice estimate: {min(score, 6.5):.1f}. Your transcript contains {len(words)} words. "
+        "Develop each answer with a reason and example, vary sentence structures, and record yourself to review pronunciation and pauses."
+    )
+    return min(score, 6.5), _ai_feedback(
+        f"Give concise IELTS speaking feedback for this response transcript. Do not claim an official score.\n\n{transcript}", fallback
+    )
+
+
+def _ai_feedback(prompt: str, fallback: str) -> str:
+    """Use OpenAI only when configured; local development remains fully usable without it."""
+    if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY.startswith("YOUR_"):
+        return fallback
+    try:
+        from openai import OpenAI
+
+        completion = OpenAI(api_key=settings.OPENAI_API_KEY).chat.completions.create(
+            model=settings.OPENAI_MODEL,
+            messages=[{"role": "system", "content": "You are a supportive IELTS coach."}, {"role": "user", "content": prompt}],
+            max_tokens=350,
+        )
+        return completion.choices[0].message.content or fallback
+    except Exception:
+        return fallback
 
 
 def university_match(program, result, user) -> dict:
