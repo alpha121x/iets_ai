@@ -14,6 +14,8 @@ def get_profile(user: CurrentUser) -> CurrentUser:
 @router.put("/me", response_model=UserProfile)
 def update_profile(payload: ProfileUpdate, user: CurrentUser, db: DBSession) -> CurrentUser:
     for field, value in payload.model_dump(exclude_unset=True).items():
+        if isinstance(value, str):
+            value = value.strip() or None
         setattr(user, field, value)
     db.commit()
     db.refresh(user)

@@ -25,4 +25,14 @@ def dashboard(user: CurrentUser, db: DBSession) -> dict:
     if result:
         scores = {"Reading": result.reading, "Listening": result.listening, "Writing": result.writing, "Speaking": result.speaking}
         weakest = min(scores, key=scores.get)
-    return {"student": user.full_name, "ielts": result, "weakest_module": weakest, "writing_submissions": submissions, "strong_matches": strong_matches}
+    ielts = None
+    if result:
+        ielts = {
+            "reading": result.reading,
+            "listening": result.listening,
+            "writing": result.writing,
+            "speaking": result.speaking,
+            "overall": result.overall,
+            "created_at": result.created_at.isoformat(),
+        }
+    return {"student": user.full_name, "ielts": ielts, "weakest_module": weakest, "writing_submissions": submissions, "strong_matches": strong_matches}
