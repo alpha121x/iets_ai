@@ -1,0 +1,55 @@
+AI COACH — FREE TOOLS AND RELIABLE DATA PLAN
+
+Yes—an accurate MVP can use mostly free tools. However, a fully global,
+always-current university database cannot be maintained reliably with free AI only.
+
+FREE COMPONENTS
+
+1. Transcript extraction
+   - Use PyMuPDF and/or Tesseract OCR.
+   - Student must confirm extracted CGPA, degree, subjects, and graduation year.
+
+2. University matching
+   - Use PostgreSQL and rule-based matching logic.
+   - Do not allow an AI model to invent eligibility requirements.
+
+3. Chatbot and test preparation
+   - Free local models are possible, but quality will be lower.
+   - Paid API models provide stronger IELTS and international-test coaching.
+
+4. University, test, and scholarship data
+   - Use official sources only.
+   - Store the official source URL and the date when each record was verified.
+
+RELIABILITY RULES
+
+Every recommendation should show:
+
+- Required IELTS, GRE, GMAT, SAT, or other test scores
+- Scholarship availability, eligibility, and deadline
+- Official university or scholarship link
+- Last verified date
+- Clear status: Eligible, Possible Match, or Verify with University
+
+Never guarantee admission or scholarship approval.
+
+RECOMMENDED LAUNCH SCOPE
+
+Start with 50–100 manually verified UK programmes, then add Germany.
+Do not claim worldwide coverage in the first version.
+
+OFFICIAL FREE SOURCES
+
+- UK Discover Uni / HESA: official UK course and higher-education data
+  https://www.discoveruni.gov.uk/about-our-data/
+
+- DAAD Scholarship Database: official German scholarship information for
+  international students and researchers
+  https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/
+
+IMPORTANT
+
+Admissions requirements, English-language requirements, test rules,
+scholarships, tuition fees, and deadlines can change. The platform must use
+structured data with a source URL and periodic verification workflow. AI should
+explain the match; the database should determine the eligibility result.

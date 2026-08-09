@@ -3,7 +3,7 @@ from sqlalchemy import desc, func
 
 from app.dependencies import CurrentUser, DBSession
 from app.models.ielts import IELTSResult
-from app.models.university import University, UniversityProgram
+from app.models.university import ProgramTestRequirement, Scholarship, University, UniversityProgram
 from app.services import university_match
 
 router = APIRouter(prefix="/api/universities", tags=["University recommendations"])
@@ -16,7 +16,7 @@ def list_programs(db: DBSession, country: str | None = None, field: str | None =
         query = query.filter(University.country.ilike(country))
     if field:
         query = query.filter(UniversityProgram.field.ilike(f"%{field}%"))
-    return [_program_dict(program, university) for program, university in query.all()]
+    return [_program_dict(program, university, db) for program, university in query.all()]
 
 
 @router.get("/recommendations")
@@ -36,17 +36,25 @@ def recommendations(user: CurrentUser, db: DBSession, country: str | None = None
         programmes = country_query.all()
     matches = []
     for program, university in programmes:
-        item = _program_dict(program, university)
+        item = _program_dict(program, university, db)
         item.update(university_match(program, result, user))
         matches.append(item)
     return sorted(matches, key=lambda item: item["match_percentage"], reverse=True)
 
 
-def _program_dict(program: UniversityProgram, university: University) -> dict:
+def _program_dict(program: UniversityProgram, university: University, db: DBSession) -> dict:
+    tests = db.query(ProgramTestRequirement).filter_by(program_id=program.id).all()
+    scholarships = db.query(Scholarship).filter(
+        (Scholarship.program_id == program.id) | (Scholarship.university_id == university.id)
+    ).all()
     return {
         "program_id": program.id, "university": university.name, "country": university.country,
         "city": university.city, "website": university.website, "program": program.program_name,
         "degree": program.degree, "field": program.field, "min_ielts": program.min_ielts,
         "min_cgpa": program.min_cgpa, "tuition_fee": program.tuition_fee,
         "application_deadline": program.application_deadline,
+        "source_url": program.source_url or university.website,
+        "last_verified_at": program.last_verified_at.isoformat() if program.last_verified_at else None,
+        "tests": [{"name": test.test_name, "minimum_score": test.minimum_score, "required": test.required, "source_url": test.source_url} for test in tests],
+        "scholarships": [{"name": scholarship.name, "amount": scholarship.amount, "eligibility": scholarship.eligibility, "deadline": scholarship.deadline, "source_url": scholarship.source_url} for scholarship in scholarships],
     }

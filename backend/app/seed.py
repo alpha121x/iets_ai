@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 
 from app.models.ielts import IELTSLesson
-from app.models.university import University, UniversityProgram
+from datetime import datetime, timezone
+
+from app.models.university import ProgramTestRequirement, Scholarship, University, UniversityProgram
 
 
 def seed_initial_data(db: Session) -> None:
@@ -19,8 +21,18 @@ def seed_initial_data(db: Session) -> None:
         db.add_all([manchester, dundee, york])
         db.flush()
         db.add_all([
-            UniversityProgram(university_id=manchester.id, program_name="MSc Advanced Computer Science", degree="Master's", field="Computer Science", min_ielts=6.5, min_writing=6.0, min_cgpa=3.0, tuition_fee=33000, application_deadline="Check official website"),
-            UniversityProgram(university_id=dundee.id, program_name="MSc Computer Science", degree="Master's", field="Computer Science", min_ielts=6.0, min_writing=6.0, min_cgpa=2.7, tuition_fee=23900, application_deadline="Check official website"),
-            UniversityProgram(university_id=york.id, program_name="MSc Computer Science", degree="Master's", field="Computer Science", min_ielts=6.5, min_writing=6.0, min_cgpa=3.0, tuition_fee=22000, application_deadline="Check official website"),
+            UniversityProgram(university_id=manchester.id, program_name="MSc Advanced Computer Science", degree="Master's", field="Computer Science", min_ielts=6.5, min_writing=6.0, min_cgpa=3.0, tuition_fee=33000, application_deadline="Check official website", source_url="https://www.manchester.ac.uk", last_verified_at=datetime.now(timezone.utc)),
+            UniversityProgram(university_id=dundee.id, program_name="MSc Computer Science", degree="Master's", field="Computer Science", min_ielts=6.0, min_writing=6.0, min_cgpa=2.7, tuition_fee=23900, application_deadline="Check official website", source_url="https://www.dundee.ac.uk", last_verified_at=datetime.now(timezone.utc)),
+            UniversityProgram(university_id=york.id, program_name="MSc Computer Science", degree="Master's", field="Computer Science", min_ielts=6.5, min_writing=6.0, min_cgpa=3.0, tuition_fee=22000, application_deadline="Check official website", source_url="https://www.yorku.ca", last_verified_at=datetime.now(timezone.utc)),
         ])
     db.commit()
+    if not db.query(ProgramTestRequirement).first():
+        programmes = {program.program_name: program for program in db.query(UniversityProgram).all()}
+        db.add_all([
+            ProgramTestRequirement(program_id=programmes["MSc Advanced Computer Science"].id, test_name="IELTS Academic", minimum_score="Overall 6.5; Writing 6.0", required=True, source_url="https://www.manchester.ac.uk", last_verified_at=datetime.now(timezone.utc)),
+            ProgramTestRequirement(program_id=programmes["MSc Computer Science"].id, test_name="IELTS Academic", minimum_score="Overall 6.5; Writing 6.0", required=True, source_url="https://www.yorku.ca", last_verified_at=datetime.now(timezone.utc)),
+        ])
+        db.add_all([
+            Scholarship(university_id=dundee.id if 'dundee' in locals() else None, name="University scholarship information", amount="Varies", eligibility="Check academic merit and programme-specific criteria.", deadline="Check official website", source_url="https://www.dundee.ac.uk", last_verified_at=datetime.now(timezone.utc)),
+        ])
+        db.commit()

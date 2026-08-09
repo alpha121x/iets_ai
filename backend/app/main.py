@@ -56,5 +56,6 @@ def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-static_dir = Path(__file__).parent / "static"
+react_build_dir = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+static_dir = react_build_dir if react_build_dir.exists() else Path(__file__).parent / "static"
 app.mount("/app", StaticFiles(directory=static_dir, html=True), name="frontend")
