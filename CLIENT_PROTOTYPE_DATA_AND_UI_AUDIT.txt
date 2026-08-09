@@ -1,0 +1,106 @@
+AI COACH — CURRENT DATA, SOURCES, AND UI AUDIT
+
+1. CURRENT DATA USED IN THE PROTOTYPE
+
+Student data (stored in PostgreSQL)
+- Full name and email
+- Target country and programme/field
+- CGPA
+- IELTS Reading, Listening, Writing, Speaking, and overall scores
+- Writing submissions and practice attempts
+- Uploaded transcript file name, extracted PDF text, and detected CGPA
+
+How transcript data works
+- The backend accepts a PDF transcript.
+- PyMuPDF extracts readable text from the PDF.
+- The system looks for CGPA/GPA patterns in that text.
+- The student must confirm the extracted CGPA, degree, subjects, and other
+  academic details. Extraction alone must never be treated as final proof.
+
+University opportunity data (stored in PostgreSQL)
+- University and programme name
+- Country, city, website, degree, and field
+- Minimum IELTS and section requirements
+- Minimum CGPA
+- Tuition fee and application deadline
+- Required tests, for example IELTS, GRE, GMAT, SAT
+- Scholarship name, amount, eligibility, deadline, and source URL
+- Official source URL and last-verified date fields
+
+IMPORTANT CURRENT STATUS
+- The current three universities/programmes and scholarship/test entries are
+  demonstration seed data for the prototype.
+- They are NOT a production-ready or complete university database.
+- The client-facing product must label all data with its source and last
+  verification date.
+
+2. RELIABLE PRODUCTION DATA SOURCES
+
+Primary source: official university pages
+- Programme admissions/entry-requirements page
+- International student English-language requirements page
+- Tuition-fee page
+- Scholarship/funding page
+- Official application deadline page
+
+Secondary official sources
+- UK Discover Uni / HESA: course and higher-education statistics
+  https://www.discoveruni.gov.uk/about-our-data/
+- DAAD Scholarship Database: German scholarships for international students
+  https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/
+
+Data rule
+- The system should not scrape or copy unverified information into eligibility
+  decisions.
+- Each programme requirement must have: source URL, verified date, reviewer,
+  and verification status.
+- The matching engine is rule-based; AI explains a result but does not invent
+  requirements or guarantee admission/scholarships.
+
+3. CURRENT UI FEATURES
+
+- Registration and login
+- Client demo mode
+- Student dashboard
+- Academic profile form
+- IELTS score form
+- University match cards
+- Scholarship summary information
+- Readiness progress display
+- AI coach call-to-action
+
+4. UI FEATURES STILL NEEDED FOR A CLIENT-READY PRODUCT
+
+Priority 1 — must build next
+- Real transcript-upload page with PDF picker, upload progress, extracted
+  fields, and student confirmation/edit screen
+- Functional sidebar navigation and separate pages/tabs
+- University programme detail page with complete requirements, all tests,
+  scholarships, deadline, official links, and "save programme" button
+- Saved/shortlisted universities page
+- Real AI Coach chat interface with chat history and suggested prompts
+- IELTS and other-test practice page with lessons, quizzes, feedback, and
+  progress
+
+Priority 2
+- Filters for country, degree, budget, scholarship availability, IELTS score,
+  subject, intake, and deadline
+- Application checklist per programme
+- Scholarship eligibility result and checklist
+- Notifications for approaching deadlines and missing requirements
+- Profile settings, password reset, and account deletion
+
+Priority 3
+- Admin dashboard to add/review university data
+- Reviewer workflow: pending, verified, expired, and source-change alerts
+- Analytics, student support, and exportable PDF study/application plan
+
+5. PRIVACY AND ACCURACY
+
+- Transcripts are sensitive personal data: restrict access to the student and
+  authorised staff only.
+- Do not expose transcript text through public APIs.
+- Use HTTPS, encrypted backups, deletion controls, and an explicit privacy
+  policy before release.
+- Show "verify with the university" for any data that is old, incomplete, or
+  not directly sourced from an official page.
