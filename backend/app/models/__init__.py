@@ -14,4 +14,6 @@ __all__ = [
     "UniversityProgram",
     "ProgramTestRequirement",
     "Scholarship",
+    "ChatMessage",
 ]
+from app.models.chat import ChatMessage

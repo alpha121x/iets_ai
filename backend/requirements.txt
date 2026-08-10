@@ -11,6 +11,8 @@ passlib[bcrypt]
 bcrypt<5
 python-multipart
 openai
+google-genai
+requests
 PyMuPDF
 pandas
 numpy

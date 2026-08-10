@@ -15,7 +15,7 @@ from app.models import (  # Import models before metadata is created.
     User,
     WritingSubmission,
 )
-from app.routers import auth, dashboard, ielts, profile, transcripts, universities
+from app.routers import auth, coach, dashboard, ielts, profile, transcripts, universities
 from app.seed import seed_initial_data
 
 
@@ -39,6 +39,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(coach.router)
 app.include_router(profile.router)
 app.include_router(ielts.router)
 app.include_router(transcripts.router)

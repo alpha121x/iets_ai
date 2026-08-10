@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5-mini"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-flash-latest"
     FRONTEND_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

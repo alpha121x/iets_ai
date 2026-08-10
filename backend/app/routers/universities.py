@@ -4,7 +4,7 @@ from sqlalchemy import desc, func
 from app.dependencies import CurrentUser, DBSession
 from app.models.ielts import IELTSResult
 from app.models.university import ProgramTestRequirement, Scholarship, University, UniversityProgram
-from app.services import university_match
+from app.services import university_ai_summary, university_match
 
 router = APIRouter(prefix="/api/universities", tags=["University recommendations"])
 
@@ -40,6 +40,22 @@ def recommendations(user: CurrentUser, db: DBSession, country: str | None = None
         item.update(university_match(program, result, user))
         matches.append(item)
     return sorted(matches, key=lambda item: item["match_percentage"], reverse=True)
+
+
+@router.get("/recommendations/ai-summary")
+def recommendation_ai_summary(user: CurrentUser, db: DBSession) -> dict:
+    """Gemini-generated next steps based on deterministic programme matches."""
+    result = db.query(IELTSResult).filter_by(user_id=user.id).order_by(desc(IELTSResult.created_at)).first()
+    query = db.query(UniversityProgram, University).join(University)
+    if user.target_country:
+        query = query.filter(func.trim(University.country).ilike(user.target_country.strip()))
+    raw_matches = []
+    for program, university in query.all():
+        item = _program_dict(program, university, db)
+        item.update(university_match(program, result, user))
+        raw_matches.append(item)
+    ranked = sorted(raw_matches, key=lambda item: item["match_percentage"], reverse=True)
+    return {"summary": university_ai_summary(user, ranked), "match_count": len(ranked)}
 
 
 def _program_dict(program: UniversityProgram, university: University, db: DBSession) -> dict:

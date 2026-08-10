@@ -72,6 +72,10 @@ class SpeakingCreate(BaseModel):
     transcript: str = Field(min_length=20)
 
 
+class CoachChatRequest(BaseModel):
+    message: str = Field(min_length=2, max_length=2000)
+
+
 class AttemptCreate(BaseModel):
     module: str = Field(pattern="^(Reading|Listening|Speaking)$")
     correct_answers: int = Field(ge=0)
