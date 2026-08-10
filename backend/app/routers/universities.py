@@ -25,8 +25,10 @@ def recommendations(user: CurrentUser, db: DBSession, country: str | None = None
     query = db.query(UniversityProgram, University).join(University)
     selected_country = (country or user.target_country or "").strip()
     selected_field = (field or user.target_program or "").strip()
+    if not selected_country and not selected_field and user.cgpa is None and result is None:
+        return []
     if selected_country:
-        query = query.filter(func.trim(University.country).ilike(selected_country))
+        query = _filter_country(query, selected_country)
     country_query = query
     if selected_field:
         query = query.filter(func.trim(UniversityProgram.field).ilike(f"%{selected_field}%"))
@@ -48,7 +50,7 @@ def recommendation_ai_summary(user: CurrentUser, db: DBSession) -> dict:
     result = db.query(IELTSResult).filter_by(user_id=user.id).order_by(desc(IELTSResult.created_at)).first()
     query = db.query(UniversityProgram, University).join(University)
     if user.target_country:
-        query = query.filter(func.trim(University.country).ilike(user.target_country.strip()))
+        query = _filter_country(query, user.target_country)
     raw_matches = []
     for program, university in query.all():
         item = _program_dict(program, university, db)
@@ -56,6 +58,23 @@ def recommendation_ai_summary(user: CurrentUser, db: DBSession) -> dict:
         raw_matches.append(item)
     ranked = sorted(raw_matches, key=lambda item: item["match_percentage"], reverse=True)
     return {"summary": university_ai_summary(user, ranked), "match_count": len(ranked)}
+
+
+def _country_terms(country: str) -> list[str]:
+    normalized = country.strip().lower()
+    aliases = {
+        "uk": ["UK", "United Kingdom"],
+        "united kingdom": ["UK", "United Kingdom"],
+        "usa": ["USA", "United States", "United States of America"],
+        "united states": ["USA", "United States", "United States of America"],
+        "united states of america": ["USA", "United States", "United States of America"],
+    }
+    return aliases.get(normalized, [country.strip()])
+
+
+def _filter_country(query, country: str):
+    terms = _country_terms(country)
+    return query.filter(func.trim(University.country).in_(terms))
 
 
 def _program_dict(program: UniversityProgram, university: University, db: DBSession) -> dict:

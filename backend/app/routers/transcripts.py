@@ -26,7 +26,7 @@ async def upload_transcript(
     except Exception as error:
         raise HTTPException(status_code=422, detail="The PDF could not be read") from error
     cgpa = _find_cgpa(text)
-    extraction_method = "pdf_text"
+    extraction_method = "pdf_text" if text else "scanned_pdf"
     # Some generated transcripts contain a text layer, but lay out the final
     # score in a way that a text pattern cannot reliably identify.  In that
     # case, use vision as a fallback as well as for fully scanned documents.
@@ -38,7 +38,14 @@ async def upload_transcript(
     if cgpa is not None:
         user.cgpa = cgpa
     db.commit()
-    return {"id": transcript.id, "filename": transcript.filename, "detected_cgpa": cgpa, "extracted_characters": len(text), "extraction_method": extraction_method}
+    return {
+        "id": transcript.id,
+        "filename": transcript.filename,
+        "detected_cgpa": cgpa,
+        "extracted_characters": len(text),
+        "extraction_method": extraction_method,
+        "manual_required": cgpa is None,
+    }
 
 
 def _find_cgpa(text: str) -> float | None:
@@ -62,6 +69,15 @@ def _find_cgpa(text: str) -> float | None:
             cgpa = float(match.group(1).replace(",", "."))
             if 0 <= cgpa <= 4:
                 return cgpa
+    table_match = re.search(
+        r"\bCGPA\b(?:\s+[A-Za-z()./%]+){0,12}\s+([0-4](?:[\.,]\d{1,2})?)\b",
+        normalized,
+        re.IGNORECASE,
+    )
+    if table_match:
+        cgpa = float(table_match.group(1).replace(",", "."))
+        if 0 <= cgpa <= 4:
+            return cgpa
     return None
 
 
